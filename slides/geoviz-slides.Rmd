@@ -25,7 +25,7 @@ library(here)
 library(countdown)
 
 # easier to generate tidycensus maps
-if (!identical(getOption("bitmapType"), "cairo") && isTRUE(capabilities()[["cairo"]])){
+if (!identical(getOption("bitmapType"), "cairo") && isTRUE(capabilities()[["cairo"]])) {
   options(bitmapType = "cairo")
 }
 
@@ -145,14 +145,15 @@ world %>%
     geom_sf() +
     ggtitle("Lambert equal area") +
     theme_minimal(base_size = rcfss::base_size * .7)
-} + {
-  world %>%
-    st_transform("+proj=cea") %>%
-    ggplot() +
-    geom_sf() +
-    ggtitle("Equal area cylindrical") +
-    theme_minimal(base_size = rcfss::base_size * .7)
 } +
+  {
+    world %>%
+      st_transform("+proj=cea") %>%
+      ggplot() +
+      geom_sf() +
+      ggtitle("Equal area cylindrical") +
+      theme_minimal(base_size = rcfss::base_size * .7)
+  } +
   plot_layout(ncol = 1, height = c(5, 5))
 ```
 
@@ -226,6 +227,7 @@ ggmap(chicago)
 .pull-right[
 
 ```{r bb-chicago-stamen-out, ref.label = "bb-chicago-stamen", eval = TRUE, echo = FALSE, fig.width = 6}
+
 ```
 
 ]
@@ -498,4 +500,392 @@ ggmap(chicago) +
 countdown(minutes = 15)
 ```
 
+---
 
+# Map data file formats
+
+* Vector files
+    * Raster images
+    * Numeric data
+* Popular formats
+    * Shapefile
+    * GeoJSON
+    
+---
+
+# Shapefile
+
+* Encodes points, lines, and polygons
+* Collection of files
+    * `.shp` - geographic coordinates
+    * `.dbf` - data associated with the geographic features
+    * `.prj` - projection of the coordinates in the shapefile
+
+---
+
+# GeoJSON
+
+* Uses **J**ava**S**cript **O**bject **N**otation (JSON) file format
+    
+    ```json
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [125.6, 10.1]
+      },
+      "properties": {
+        "name": "Dinagat Islands"
+      }
+    }
+    ```
+* Plain text files
+
+---
+
+# Simple features
+
+* [Packages in R for spatial data](https://cran.r-project.org/web/views/Spatial.html)
+* Tidy packages for spatial data
+* Simple features and `sf`
+    * Emphasizes spatial geometry
+    * Describes how to store and retrieve objects
+    * Defines geometrical operations
+
+---
+
+# What is a feature?
+
+* Thing or an object in the real world
+* Sets of features
+* Geometry
+* Attributes
+
+---
+
+# Dimensions
+
+* Geometries composed of points
+    * Coordinates in a 2-, 3- or 4-dimensional space
+    * All points in a geometry have the same dimensionality
+* X and Y coordinates
+* Z coordinate
+* M coordinate (measure associated with point rather than the feature)
+
+---
+
+# Simple feature geometry types
+
+| type | description                                             |
+| ---- | ------------------------------------------------------- |
+| `POINT` | zero-dimensional geometry containing a single point |
+| `LINESTRING` | sequence of points connected by straight, non-self intersecting line pieces; one-dimensional geometry |
+| `POLYGON` | geometry with a positive area (two-dimensional); sequence of points form a closed, non-self intersecting ring; the first ring denotes the exterior ring, zero or more subsequent rings denote holes in this exterior ring |
+
+--
+
+* `MULTIPOINT`
+* `MULTILINESTRING`
+* `MULTIPOLYGON`
+
+---
+
+# Simple features in R
+
+* Uses basic R data structures
+* Data frame with one row per feature
+* Lots of list columns
+
+---
+
+# Importing shapefiles
+
+```{r import-usa-shape, echo = TRUE}
+usa_shape <- here("data", "cb_2020_us_state_5m", "cb_2020_us_state_5m.shp") %>%
+  st_read()
+```
+
+---
+
+# Importing shapefiles
+
+```{r import-usa-shape-print, echo = TRUE}
+usa_shape
+```
+
+---
+
+# Importing GeoJSON files
+
+```{r import-chi-json, echo = TRUE}
+chi_json <- here("data", "community-area-boundaries.geojson") %>%
+  st_read()
+```
+
+---
+
+# Importing GeoJSON files
+
+```{r import-chi-json-print, echo = TRUE}
+chi_json
+```
+
+---
+
+# Drawing maps with `sf` objects
+
+```{r import-usa, echo = TRUE}
+usa <- here("data", "cb_2020_us_state_5m", "cb_2020_us_state_5m.shp") %>%
+  st_read()
+```
+
+---
+
+# USA boundaries
+
+```{r geom-sf, echo = TRUE}
+ggplot(data = usa) +
+  geom_sf()
+```
+
+---
+
+# Plot a subset of a map
+
+```{r usa-subset, echo = TRUE, fig.height = 5}
+usa_48 <- usa %>%
+  filter(NAME %in% state.name) %>%
+  filter(NAME != "Alaska", NAME != "Hawaii")
+
+ggplot(data = usa_48) +
+  geom_sf()
+```
+
+---
+
+# Just another `ggplot()`
+
+```{r usa-fill, echo = TRUE}
+ggplot(data = usa_48) +
+  geom_sf(fill = "palegreen", color = "black")
+```
+
+---
+
+# `urbnmapr`
+
+```{r urbnmapr, echo = TRUE, fig.height = 5}
+# devtools::install_github("UrbanInstitute/urbnmapr")
+library(urbnmapr)
+
+states_sf <- get_urbn_map("states", sf = TRUE)
+
+ggplot(data = states_sf) +
+  geom_sf()
+```
+
+---
+
+# Points
+
+```{r chi-crimes, echo = TRUE}
+crimes_homicide <- filter(.data = crimes, `Primary Type` == "HOMICIDE")
+crimes_homicide
+```
+
+---
+
+# Points
+
+```{r scatter, echo = TRUE}
+ggplot(data = crimes_homicide, mapping = aes(x = Longitude, y = Latitude)) +
+  geom_point()
+```
+
+---
+
+# Points
+
+.pull-left[
+
+```{r chi-crime, eval = FALSE, echo = TRUE}
+ggplot(data = chi_json) +
+  geom_sf() +
+  geom_point(
+    data = crimes_homicide,
+    mapping = aes(x = Longitude, y = Latitude),
+    shape = 1
+  )
+```
+
+]
+
+.pull-right[
+
+```{r chi-crime-out, ref.label = "chi-crime", eval = TRUE, echo = FALSE, fig.width = 6}
+```
+
+]
+
+---
+
+# Converting to `sf` data frame
+
+```{r crimes-sf, echo = TRUE}
+crimes_homicide_sf <- st_as_sf(x = crimes_homicide, coords = c("Longitude", "Latitude"))
+st_crs(crimes_homicide_sf) <- 4326 # set the coordinate reference system
+crimes_homicide_sf
+```
+
+---
+
+# Plotting with two sf data frames
+
+```{r crimes-sf-plot, echo = TRUE, fig.height = 7}
+ggplot() +
+  geom_sf(data = chi_json) +
+  geom_sf(data = crimes_homicide_sf, shape = 1)
+```
+
+---
+
+# Fill (choropleths)
+
+```{r import-foreign, echo = TRUE}
+fb_state <- read_csv(file = here("data", "foreign-born.csv"))
+fb_state
+```
+
+---
+
+# Join the data
+
+```{r usa-foreign-join, echo = TRUE}
+usa_fb <- left_join(x = usa_48, y = fb_state, by = c("STATEFP" = "GEOID", "NAME"))
+usa_fb
+```
+
+---
+
+# Draw the map
+
+```{r geom-map-state, echo = TRUE}
+ggplot(data = usa_fb) +
+  geom_sf(mapping = aes(fill = pct_foreign))
+```
+
+---
+
+# Exercise using household income
+
+```{r cache = FALSE}
+countdown(minutes = 10)
+```
+
+---
+
+# Bin data to discrete intervals
+
+* Continuous vs. discrete variables for color
+* Collapse to a discrete variable
+
+---
+
+# `cut_interval()`
+
+```{r cut-interval, echo = TRUE}
+usa_fb %>%
+  mutate(rate_cut = cut_interval(pct_foreign, n = 6)) %>%
+  ggplot() +
+  geom_sf(aes(fill = rate_cut))
+```
+
+---
+
+# `cut_number()`
+
+```{r cut-number, echo = TRUE}
+usa_fb %>%
+  mutate(rate_cut = cut_number(pct_foreign, n = 6)) %>%
+  ggplot() +
+  geom_sf(aes(fill = rate_cut))
+```
+
+---
+
+# Map projection
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/vVX-PrBRtTY?rel=0" frameborder="0" allowfullscreen></iframe>
+
+---
+
+# Map projection
+
+.center[
+
+![[Mercator Projection](https://xkcd.com/2082/)](https://imgs.xkcd.com/comics/mercator_projection.png)
+
+]
+
+---
+
+# Map projection
+
+* Coordinate reference system
+* `proj4string`
+
+---
+
+# Mercator projection
+
+```{r projections}
+map_proj_base <- ggplot(data = usa_48) +
+  geom_sf()
+```
+
+```{r mercator-sf, echo = TRUE, fig.height = 6}
+map_proj_base +
+  coord_sf(crs = "+proj=merc") +
+  ggtitle("Mercator projection")
+```
+
+---
+
+# Projection using standard lines
+
+```{r projection-rest}
+{
+  map_proj_base +
+    coord_sf(crs = "+proj=cea +lon_0=0 +lat_ts=45") +
+    labs(
+      title = "Gall-Peters",
+      subtitle = '"+proj=cea +lon_0=0 +lat_ts=45"'
+    )
+} +
+  {
+    map_proj_base +
+      coord_sf(crs = "+proj=laea +lat_0=35 +lon_0=-100") +
+      labs(
+        title = "Lambert azimuthal",
+        subtitle = '"+proj=laea +lat_0=35 +lon_0=-100"'
+      )
+  } +
+  {
+    map_proj_base +
+      coord_sf(crs = "+proj=aea +lat_1=25 +lat_2=50 +lon_0=-100") +
+      labs(
+        title = "Albers equal-area",
+        subtitle = '"+proj=aea +lat_1=25 +lat_2=50 +lon_0=-100"'
+      )
+  } +
+  {
+    map_proj_base +
+      coord_sf(crs = "+proj=aea +lat_1=0 +lat_2=80 +lon_0=-100") +
+      labs(
+        title = "Albers equal-area",
+        subtitle = '"+proj=aea +lat_1=0 +lat_2=80 +lon_0=-100"'
+      )
+  } +
+  plot_layout(ncol = 2, nrow = 2) &
+  theme_minimal(base_size = rcfss::base_size * .75)
+```

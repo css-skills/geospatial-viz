@@ -408,11 +408,601 @@ ggmap(chicago) +
 - City of Chicago data portal
 - 311 service requests
 
-<div class="countdown" id="timer_6169d60e" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_6169e7ab" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">15</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
+---
 
+# Map data file formats
+
+* Vector files
+    * Raster images
+    * Numeric data
+* Popular formats
+    * Shapefile
+    * GeoJSON
+    
+---
+
+# Shapefile
+
+* Encodes points, lines, and polygons
+* Collection of files
+    * `.shp` - geographic coordinates
+    * `.dbf` - data associated with the geographic features
+    * `.prj` - projection of the coordinates in the shapefile
+
+---
+
+# GeoJSON
+
+* Uses **J**ava**S**cript **O**bject **N**otation (JSON) file format
+    
+    ```json
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [125.6, 10.1]
+      },
+      "properties": {
+        "name": "Dinagat Islands"
+      }
+    }
+    ```
+* Plain text files
+
+---
+
+# Simple features
+
+* [Packages in R for spatial data](https://cran.r-project.org/web/views/Spatial.html)
+* Tidy packages for spatial data
+* Simple features and `sf`
+    * Emphasizes spatial geometry
+    * Describes how to store and retrieve objects
+    * Defines geometrical operations
+
+---
+
+# What is a feature?
+
+* Thing or an object in the real world
+* Sets of features
+* Geometry
+* Attributes
+
+---
+
+# Dimensions
+
+* Geometries composed of points
+    * Coordinates in a 2-, 3- or 4-dimensional space
+    * All points in a geometry have the same dimensionality
+* X and Y coordinates
+* Z coordinate
+* M coordinate (measure associated with point rather than the feature)
+
+---
+
+# Simple feature geometry types
+
+| type | description                                             |
+| ---- | ------------------------------------------------------- |
+| `POINT` | zero-dimensional geometry containing a single point |
+| `LINESTRING` | sequence of points connected by straight, non-self intersecting line pieces; one-dimensional geometry |
+| `POLYGON` | geometry with a positive area (two-dimensional); sequence of points form a closed, non-self intersecting ring; the first ring denotes the exterior ring, zero or more subsequent rings denote holes in this exterior ring |
+
+--
+
+* `MULTIPOINT`
+* `MULTILINESTRING`
+* `MULTIPOLYGON`
+
+---
+
+# Simple features in R
+
+* Uses basic R data structures
+* Data frame with one row per feature
+* Lots of list columns
+
+---
+
+# Importing shapefiles
+
+
+```r
+usa_shape &lt;- here("data", "cb_2020_us_state_5m", "cb_2020_us_state_5m.shp") %&gt;%
+  st_read()
+```
+
+```
+## Reading layer `cb_2020_us_state_5m' from data source 
+##   `/Users/soltoffbc/Projects/css-skills-workshop/workshop-materials/geospatial-viz/data/cb_2020_us_state_5m/cb_2020_us_state_5m.shp' 
+##   using driver `ESRI Shapefile'
+## Simple feature collection with 56 features and 9 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -179.1473 ymin: -14.55255 xmax: 179.7785 ymax: 71.35256
+## Geodetic CRS:  NAD83
+```
+
+---
+
+# Importing shapefiles
+
+
+```r
+usa_shape
+```
+
+```
+## Simple feature collection with 56 features and 9 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -179.1473 ymin: -14.55255 xmax: 179.7785 ymax: 71.35256
+## Geodetic CRS:  NAD83
+## First 10 features:
+##    STATEFP  STATENS    AFFGEOID GEOID STUSPS          NAME LSAD        ALAND
+## 1       55 01779806 0400000US55    55     WI     Wisconsin   00 140292246684
+## 2       54 01779805 0400000US54    54     WV West Virginia   00  62266296765
+## 3       16 01779783 0400000US16    16     ID         Idaho   00 214049923496
+## 4       27 00662849 0400000US27    27     MN     Minnesota   00 206232157570
+## 5       19 01779785 0400000US19    19     IA          Iowa   00 144659688848
+## 6       10 01779781 0400000US10    10     DE      Delaware   00   5046731558
+## 7       72 01779808 0400000US72    72     PR   Puerto Rico   00   8868948653
+## 8       29 01779791 0400000US29    29     MO      Missouri   00 178052563675
+## 9       50 01779802 0400000US50    50     VT       Vermont   00  23873081385
+## 10      24 01714934 0400000US24    24     MD      Maryland   00  25151895765
+##         AWATER                       geometry
+## 1  29343721650 MULTIPOLYGON (((-86.9562 45...
+## 2    489206049 MULTIPOLYGON (((-82.643 38....
+## 3   2391577745 MULTIPOLYGON (((-117.2427 4...
+## 4  18949864226 MULTIPOLYGON (((-97.23921 4...
+## 5   1085996889 MULTIPOLYGON (((-96.6397 42...
+## 6   1399179670 MULTIPOLYGON (((-75.5708 39...
+## 7   4922329963 MULTIPOLYGON (((-65.3375 18...
+## 8   2487215790 MULTIPOLYGON (((-95.77355 4...
+## 9   1030243281 MULTIPOLYGON (((-73.43774 4...
+## 10  6979171386 MULTIPOLYGON (((-76.0494 37...
+```
+
+---
+
+# Importing GeoJSON files
+
+
+```r
+chi_json &lt;- here("data", "community-area-boundaries.geojson") %&gt;%
+  st_read()
+```
+
+```
+## Reading layer `community-area-boundaries' from data source 
+##   `/Users/soltoffbc/Projects/css-skills-workshop/workshop-materials/geospatial-viz/data/community-area-boundaries.geojson' 
+##   using driver `GeoJSON'
+## Simple feature collection with 77 features and 9 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -87.94011 ymin: 41.64454 xmax: -87.52414 ymax: 42.02304
+## Geodetic CRS:  WGS 84
+```
+
+---
+
+# Importing GeoJSON files
+
+
+```r
+chi_json
+```
+
+```
+## Simple feature collection with 77 features and 9 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -87.94011 ymin: 41.64454 xmax: -87.52414 ymax: 42.02304
+## Geodetic CRS:  WGS 84
+## First 10 features:
+##          community area    shape_area perimeter area_num_1 area_numbe
+## 1          DOUGLAS    0 46004621.1581         0         35         35
+## 2          OAKLAND    0 16913961.0408         0         36         36
+## 3      FULLER PARK    0 19916704.8692         0         37         37
+## 4  GRAND BOULEVARD    0 48492503.1554         0         38         38
+## 5          KENWOOD    0 29071741.9283         0         39         39
+## 6   LINCOLN SQUARE    0 71352328.2399         0          4          4
+## 7  WASHINGTON PARK    0 42373881.4842         0         40         40
+## 8        HYDE PARK    0 45105380.1732         0         41         41
+## 9         WOODLAWN    0  57815179.512         0         42         42
+## 10     ROGERS PARK    0 51259902.4506         0          1          1
+##    comarea_id comarea     shape_len                       geometry
+## 1           0       0 31027.0545098 MULTIPOLYGON (((-87.60914 4...
+## 2           0       0 19565.5061533 MULTIPOLYGON (((-87.59215 4...
+## 3           0       0 25339.0897503 MULTIPOLYGON (((-87.6288 41...
+## 4           0       0 28196.8371573 MULTIPOLYGON (((-87.60671 4...
+## 5           0       0 23325.1679062 MULTIPOLYGON (((-87.59215 4...
+## 6           0       0 36624.6030848 MULTIPOLYGON (((-87.67441 4...
+## 7           0       0 28175.3160866 MULTIPOLYGON (((-87.60604 4...
+## 8           0       0 29746.7082016 MULTIPOLYGON (((-87.58038 4...
+## 9           0       0 46936.9592443 MULTIPOLYGON (((-87.57714 4...
+## 10          0       0 34052.3975757 MULTIPOLYGON (((-87.65456 4...
+```
+
+---
+
+# Drawing maps with `sf` objects
+
+
+```r
+usa &lt;- here("data", "cb_2020_us_state_5m", "cb_2020_us_state_5m.shp") %&gt;%
+  st_read()
+```
+
+```
+## Reading layer `cb_2020_us_state_5m' from data source 
+##   `/Users/soltoffbc/Projects/css-skills-workshop/workshop-materials/geospatial-viz/data/cb_2020_us_state_5m/cb_2020_us_state_5m.shp' 
+##   using driver `ESRI Shapefile'
+## Simple feature collection with 56 features and 9 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -179.1473 ymin: -14.55255 xmax: 179.7785 ymax: 71.35256
+## Geodetic CRS:  NAD83
+```
+
+---
+
+# USA boundaries
+
+
+```r
+ggplot(data = usa) +
+  geom_sf()
+```
+
+&lt;img src="geoviz-slides_files/figure-html/geom-sf-1.png" width="864" /&gt;
+
+---
+
+# Plot a subset of a map
+
+
+```r
+usa_48 &lt;- usa %&gt;%
+  filter(NAME %in% state.name) %&gt;%
+  filter(NAME != "Alaska", NAME != "Hawaii")
+
+ggplot(data = usa_48) +
+  geom_sf()
+```
+
+&lt;img src="geoviz-slides_files/figure-html/usa-subset-1.png" width="864" /&gt;
+
+---
+
+# Just another `ggplot()`
+
+
+```r
+ggplot(data = usa_48) +
+  geom_sf(fill = "palegreen", color = "black")
+```
+
+&lt;img src="geoviz-slides_files/figure-html/usa-fill-1.png" width="864" /&gt;
+
+---
+
+# `urbnmapr`
+
+
+```r
+# devtools::install_github("UrbanInstitute/urbnmapr")
+library(urbnmapr)
+
+states_sf &lt;- get_urbn_map("states", sf = TRUE)
+
+ggplot(data = states_sf) +
+  geom_sf()
+```
+
+&lt;img src="geoviz-slides_files/figure-html/urbnmapr-1.png" width="864" /&gt;
+
+---
+
+# Points
+
+
+```r
+crimes_homicide &lt;- filter(.data = crimes, `Primary Type` == "HOMICIDE")
+crimes_homicide
+```
+
+```
+## # A tibble: 675 × 22
+##          ID `Case Number` Date       Block    IUCR  `Primary Type` Description  
+##       &lt;dbl&gt; &lt;chr&gt;         &lt;chr&gt;      &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;          &lt;chr&gt;        
+##  1 10826397 JA119425      01/18/201… 023XX W… 0142  HOMICIDE       RECKLESS HOM…
+##  2 10836558 JA138326      02/01/201… 013XX S… 0142  HOMICIDE       RECKLESS HOM…
+##  3 11177987 JA549346      12/14/201… 038XX W… 0142  HOMICIDE       RECKLESS HOM…
+##  4    23059 JA100252      01/01/201… 046XX N… 0110  HOMICIDE       FIRST DEGREE…
+##  5    23060 JA100278      01/01/201… 046XX W… 0110  HOMICIDE       FIRST DEGREE…
+##  6    23061 JA102602      01/03/201… 034XX W… 0110  HOMICIDE       FIRST DEGREE…
+##  7    23062 JA103468      01/03/201… 032XX W… 0110  HOMICIDE       FIRST DEGREE…
+##  8    23063 JA102602      01/04/201… 034XX W… 0110  HOMICIDE       FIRST DEGREE…
+##  9    23064 JA103468      01/04/201… 032XX W… 0110  HOMICIDE       FIRST DEGREE…
+## 10    23066 HZ564892      01/06/201… 086XX S… 0110  HOMICIDE       FIRST DEGREE…
+## # … with 665 more rows, and 15 more variables: Location Description &lt;chr&gt;,
+## #   Arrest &lt;lgl&gt;, Domestic &lt;lgl&gt;, Beat &lt;chr&gt;, District &lt;chr&gt;, Ward &lt;dbl&gt;,
+## #   Community Area &lt;dbl&gt;, FBI Code &lt;chr&gt;, X Coordinate &lt;dbl&gt;,
+## #   Y Coordinate &lt;dbl&gt;, Year &lt;dbl&gt;, Updated On &lt;chr&gt;, Latitude &lt;dbl&gt;,
+## #   Longitude &lt;dbl&gt;, Location &lt;chr&gt;
+```
+
+---
+
+# Points
+
+
+```r
+ggplot(data = crimes_homicide, mapping = aes(x = Longitude, y = Latitude)) +
+  geom_point()
+```
+
+&lt;img src="geoviz-slides_files/figure-html/scatter-1.png" width="864" /&gt;
+
+---
+
+# Points
+
+.pull-left[
+
+
+```r
+ggplot(data = chi_json) +
+  geom_sf() +
+  geom_point(
+    data = crimes_homicide,
+    mapping = aes(x = Longitude, y = Latitude),
+    shape = 1
+  )
+```
+
+]
+
+.pull-right[
+
+&lt;img src="geoviz-slides_files/figure-html/chi-crime-out-1.png" width="432" /&gt;
+
+]
+
+---
+
+# Converting to `sf` data frame
+
+
+```r
+crimes_homicide_sf &lt;- st_as_sf(x = crimes_homicide, coords = c("Longitude", "Latitude"))
+st_crs(crimes_homicide_sf) &lt;- 4326 # set the coordinate reference system
+crimes_homicide_sf
+```
+
+```
+## Simple feature collection with 675 features and 20 fields
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: -87.83662 ymin: 41.65306 xmax: -87.53287 ymax: 42.02164
+## Geodetic CRS:  WGS 84
+## # A tibble: 675 × 21
+##          ID `Case Number` Date       Block    IUCR  `Primary Type` Description  
+##  *    &lt;dbl&gt; &lt;chr&gt;         &lt;chr&gt;      &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;          &lt;chr&gt;        
+##  1 10826397 JA119425      01/18/201… 023XX W… 0142  HOMICIDE       RECKLESS HOM…
+##  2 10836558 JA138326      02/01/201… 013XX S… 0142  HOMICIDE       RECKLESS HOM…
+##  3 11177987 JA549346      12/14/201… 038XX W… 0142  HOMICIDE       RECKLESS HOM…
+##  4    23059 JA100252      01/01/201… 046XX N… 0110  HOMICIDE       FIRST DEGREE…
+##  5    23060 JA100278      01/01/201… 046XX W… 0110  HOMICIDE       FIRST DEGREE…
+##  6    23061 JA102602      01/03/201… 034XX W… 0110  HOMICIDE       FIRST DEGREE…
+##  7    23062 JA103468      01/03/201… 032XX W… 0110  HOMICIDE       FIRST DEGREE…
+##  8    23063 JA102602      01/04/201… 034XX W… 0110  HOMICIDE       FIRST DEGREE…
+##  9    23064 JA103468      01/04/201… 032XX W… 0110  HOMICIDE       FIRST DEGREE…
+## 10    23066 HZ564892      01/06/201… 086XX S… 0110  HOMICIDE       FIRST DEGREE…
+## # … with 665 more rows, and 14 more variables: Location Description &lt;chr&gt;,
+## #   Arrest &lt;lgl&gt;, Domestic &lt;lgl&gt;, Beat &lt;chr&gt;, District &lt;chr&gt;, Ward &lt;dbl&gt;,
+## #   Community Area &lt;dbl&gt;, FBI Code &lt;chr&gt;, X Coordinate &lt;dbl&gt;,
+## #   Y Coordinate &lt;dbl&gt;, Year &lt;dbl&gt;, Updated On &lt;chr&gt;, Location &lt;chr&gt;,
+## #   geometry &lt;POINT [°]&gt;
+```
+
+---
+
+# Plotting with two sf data frames
+
+
+```r
+ggplot() +
+  geom_sf(data = chi_json) +
+  geom_sf(data = crimes_homicide_sf, shape = 1)
+```
+
+&lt;img src="geoviz-slides_files/figure-html/crimes-sf-plot-1.png" width="864" /&gt;
+
+---
+
+# Fill (choropleths)
+
+
+```r
+fb_state &lt;- read_csv(file = here("data", "foreign-born.csv"))
+fb_state
+```
+
+```
+## # A tibble: 52 × 6
+##    GEOID NAME                    total   native  foreign pct_foreign
+##    &lt;chr&gt; &lt;chr&gt;                   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;       &lt;dbl&gt;
+##  1 01    Alabama               4876250  4703303   172947      0.0355
+##  2 02    Alaska                 737068   679401    57667      0.0782
+##  3 04    Arizona               7050299  6109648   940651      0.133 
+##  4 05    Arkansas              2999370  2854323   145047      0.0484
+##  5 06    California           39283497 28736287 10547210      0.268 
+##  6 08    Colorado              5610349  5063836   546513      0.0974
+##  7 10    Delaware               957248   865775    91473      0.0956
+##  8 11    District of Columbia   692683   597618    95065      0.137 
+##  9 09    Connecticut           3575074  3054123   520951      0.146 
+## 10 12    Florida              20901636 16576836  4324800      0.207 
+## # … with 42 more rows
+```
+
+---
+
+# Join the data
+
+
+```r
+usa_fb &lt;- left_join(x = usa_48, y = fb_state, by = c("STATEFP" = "GEOID", "NAME"))
+usa_fb
+```
+
+```
+## Simple feature collection with 48 features and 13 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -124.7332 ymin: 24.51496 xmax: -66.9499 ymax: 49.38436
+## Geodetic CRS:  NAD83
+## First 10 features:
+##    STATEFP  STATENS    AFFGEOID GEOID STUSPS          NAME LSAD        ALAND
+## 1       55 01779806 0400000US55    55     WI     Wisconsin   00 140292246684
+## 2       54 01779805 0400000US54    54     WV West Virginia   00  62266296765
+## 3       16 01779783 0400000US16    16     ID         Idaho   00 214049923496
+## 4       27 00662849 0400000US27    27     MN     Minnesota   00 206232157570
+## 5       19 01779785 0400000US19    19     IA          Iowa   00 144659688848
+## 6       10 01779781 0400000US10    10     DE      Delaware   00   5046731558
+## 7       29 01779791 0400000US29    29     MO      Missouri   00 178052563675
+## 8       50 01779802 0400000US50    50     VT       Vermont   00  23873081385
+## 9       24 01714934 0400000US24    24     MD      Maryland   00  25151895765
+## 10      33 01779794 0400000US33    33     NH New Hampshire   00  23190113978
+##         AWATER   total  native foreign pct_foreign
+## 1  29343721650 5790716 5500994  289722  0.05003215
+## 2    489206049 1817305 1787134   30171  0.01660206
+## 3   2391577745 1717750 1615307  102443  0.05963790
+## 4  18949864226 5563378 5090529  472849  0.08499315
+## 5   1085996889 3139508 2973069  166439  0.05301436
+## 6   1399179670  957248  865775   91473  0.09555831
+## 7   2487215790 6104910 5849191  255719  0.04188743
+## 8   1030243281  624313  594985   29328  0.04697644
+## 9   6979171386 6018848 5105961  912887  0.15167138
+## 10  1025973001 1348124 1265430   82694  0.06134005
+##                          geometry
+## 1  MULTIPOLYGON (((-86.9562 45...
+## 2  MULTIPOLYGON (((-82.643 38....
+## 3  MULTIPOLYGON (((-117.2427 4...
+## 4  MULTIPOLYGON (((-97.23921 4...
+## 5  MULTIPOLYGON (((-96.6397 42...
+## 6  MULTIPOLYGON (((-75.5708 39...
+## 7  MULTIPOLYGON (((-95.77355 4...
+## 8  MULTIPOLYGON (((-73.43774 4...
+## 9  MULTIPOLYGON (((-76.0494 37...
+## 10 MULTIPOLYGON (((-72.55725 4...
+```
+
+---
+
+# Draw the map
+
+
+```r
+ggplot(data = usa_fb) +
+  geom_sf(mapping = aes(fill = pct_foreign))
+```
+
+&lt;img src="geoviz-slides_files/figure-html/geom-map-state-1.png" width="864" /&gt;
+
+---
+
+# Exercise using household income
+
+<div class="countdown" id="timer_6169e603" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">10</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+# Bin data to discrete intervals
+
+* Continuous vs. discrete variables for color
+* Collapse to a discrete variable
+
+---
+
+# `cut_interval()`
+
+
+```r
+usa_fb %&gt;%
+  mutate(rate_cut = cut_interval(pct_foreign, n = 6)) %&gt;%
+  ggplot() +
+  geom_sf(aes(fill = rate_cut))
+```
+
+&lt;img src="geoviz-slides_files/figure-html/cut-interval-1.png" width="864" /&gt;
+
+---
+
+# `cut_number()`
+
+
+```r
+usa_fb %&gt;%
+  mutate(rate_cut = cut_number(pct_foreign, n = 6)) %&gt;%
+  ggplot() +
+  geom_sf(aes(fill = rate_cut))
+```
+
+&lt;img src="geoviz-slides_files/figure-html/cut-number-1.png" width="864" /&gt;
+
+---
+
+# Map projection
+
+&lt;iframe width="560" height="315" src="https://www.youtube.com/embed/vVX-PrBRtTY?rel=0" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;
+
+---
+
+# Map projection
+
+.center[
+
+![[Mercator Projection](https://xkcd.com/2082/)](https://imgs.xkcd.com/comics/mercator_projection.png)
+
+]
+
+---
+
+# Map projection
+
+* Coordinate reference system
+* `proj4string`
+
+---
+
+# Mercator projection
+
+
+
+
+```r
+map_proj_base +
+  coord_sf(crs = "+proj=merc") +
+  ggtitle("Mercator projection")
+```
+
+&lt;img src="geoviz-slides_files/figure-html/mercator-sf-1.png" width="864" /&gt;
+
+---
+
+# Projection using standard lines
+
+&lt;img src="geoviz-slides_files/figure-html/projection-rest-1.png" width="864" /&gt;
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

@@ -1,0 +1,81 @@
+---
+title: "Practice drawing raster maps"
+output: html_document
+---
+
+```{r packages}
+library(tidyverse)
+library(sf)
+library(here)   # for specifying directory location
+```
+
+## Import information on median household income in 2017 for Cook County, IL at the tract-level using the ACS
+
+
+```{r}
+cook_county_path <- here("data", "cook-county-inc.geojson")
+cook_inc <- st_read(dsn = cook_county_path)
+cook_inc
+```
+
+## Draw a choropleth using the median household income data. Use a continuous color gradient to identify each tract's median household income.
+
+```{r}
+ggplot(data = cook_inc) +
+  # use fill and color to avoid gray boundary lines
+  geom_sf(mapping = aes(fill = estimate, color = estimate)) +
+  # increase interpretability of graph
+  scale_color_continuous(labels = scales::dollar) +
+  scale_fill_continuous(labels = scales::dollar) +
+  labs(
+    title = "Median household income in Cook County, IL",
+    subtitle = "In 2019",
+    color = NULL,
+    fill = NULL,
+    caption = "Source: American Community Survey"
+  )
+```
+
+## Draw the same choropleth for Cook County, but convert median household income into a discrete variable with 6 levels
+
+### Using `cut_interval()`
+
+```{r cut-interval, dependson = "income-cook"}
+cook_inc %>%
+  mutate(inc_cut = cut_interval(estimate, n = 6)) %>%
+  ggplot() +
+  # use fill and color to avoid gray boundary lines
+  geom_sf(mapping = aes(fill = inc_cut, color = inc_cut)) +
+  # increase interpretability of graph
+  labs(
+    title = "Median household income in Cook County, IL",
+    subtitle = "In 2019",
+    color = NULL,
+    fill = NULL,
+    caption = "Source: American Community Survey"
+  )
+```
+        
+### Using `cut_number()`
+
+```{r cut-number, dependson = "income-cook"}
+cook_inc %>%
+  mutate(inc_cut = cut_number(estimate, n = 6)) %>%
+  ggplot() +
+  # use fill and color to avoid gray boundary lines
+  geom_sf(mapping = aes(fill = inc_cut, color = inc_cut)) +
+  # increase interpretability of graph
+  labs(
+    title = "Median household income in Cook County, IL",
+    subtitle = "In 2019",
+    color = NULL,
+    fill = NULL,
+    caption = "Source: American Community Survey"
+  )
+```
+
+## Session Info
+
+```{r}
+sessioninfo::session_info()
+```

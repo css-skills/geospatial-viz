@@ -491,6 +491,9 @@ ggmap(chicago) +
 
 # Exercise using `ggmap`
 
+- City of Chicago data portal
+- 311 service requests
+
 ```{r cache = FALSE}
 countdown(minutes = 15)
 ```

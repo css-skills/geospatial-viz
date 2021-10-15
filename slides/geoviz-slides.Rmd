@@ -778,6 +778,9 @@ ggplot(data = usa_fb) +
 
 # Exercise using household income
 
+- American Community Survey
+- [`tidycensus`](https://walker-data.com/tidycensus/)
+
 ```{r cache = FALSE}
 countdown(minutes = 10)
 ```

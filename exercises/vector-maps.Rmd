@@ -13,7 +13,7 @@ library(here)   # for specifying directory location
 
 ```{r}
 cook_county_path <- here("data", "cook-county-inc.geojson")
-cook_inc <- st_read(dsn = cook_county_path)
+cook_inc <- st_read(______ = cook_county_path)
 cook_inc
 ```
 
@@ -23,12 +23,11 @@ cook_inc
 
 ```{r}
 # use fill channel
-ggplot(data = cook_inc) +
-  geom_sf(mapping = aes(fill = estimate))
+ggplot(data = _____) +
+  geom_sf(mapping = aes(fill = _____))
 
 # use fill and color channels - what is the difference?
-ggplot(data = cook_inc) +
-  geom_sf(mapping = aes(fill = estimate, color = estimate))
+...
 ```
 
 ## Draw the same choropleth for Cook County, but convert median household income into a discrete variable with 6 levels
@@ -37,7 +36,7 @@ ggplot(data = cook_inc) +
 
 ```{r}
 cook_inc %>%
-  mutate(inc_cut = cut_interval(estimate, n = 6)) %>%
+  ______(______ = ______) %>%
   ggplot() +
   geom_sf(mapping = aes(fill = inc_cut, color = inc_cut))
 ```
@@ -46,7 +45,7 @@ cook_inc %>%
 
 ```{r}
 cook_inc %>%
-  mutate(inc_cut = cut_number(estimate, n = 6)) %>%
+  ______(______ = ______) %>%
   ggplot() +
   geom_sf(mapping = aes(fill = inc_cut, color = inc_cut))
 ```
@@ -61,9 +60,9 @@ usa_inc
 ```
 
 ```{r}
-ggplot(data = usa_inc) +
-  geom_sf(mapping = aes(fill = estimate, color = estimate)) +
-  coord_sf(crs = 2163)
+ggplot(data = ______) +
+  geom_sf(mapping = aes(fill = ______, color = ______)) +
+  ______(______ = ______)
 ```
 
 ## Session Info

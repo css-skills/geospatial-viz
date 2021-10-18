@@ -74,7 +74,7 @@ ggmap(chicago) +
   )
 ```
 
-## Obtain map tiles for Hyde Park
+## Obtain map tiles for Hyde Park using the toner map tiles
 
 ```{r}
 # store bounding box coordinates
@@ -88,7 +88,8 @@ hp_bb <- c(
 # retrieve bounding box
 hyde_park <- get_stamenmap(
   bbox = hp_bb,
-  zoom = 15
+  zoom = 15,
+  maptype = "toner"
 )
 
 # plot the raster map
